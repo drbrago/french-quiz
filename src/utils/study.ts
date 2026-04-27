@@ -58,6 +58,15 @@ export function isAnswerCorrect(
   return acceptedAnswers.includes(normalizedUserAnswer);
 }
 
+export function filterItemsByCategories<T extends { category: string }>(items: T[], categories?: string[]): T[] {
+  if (!categories || categories.length === 0) {
+    return items;
+  }
+
+  const categorySet = new Set(categories);
+  return items.filter((item) => categorySet.has(item.category));
+}
+
 export function buildQuizRound(questions: QuizQuestion[], count: number): QuizQuestion[] {
   const multipleChoice = shuffleArray(questions.filter((question) => question.type === "multiple-choice"));
   const textQuestions = shuffleArray(questions.filter((question) => question.type === "text"));

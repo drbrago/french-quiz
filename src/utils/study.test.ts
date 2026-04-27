@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { Flashcard, PracticeItem, QuizQuestion } from "../data/chapter4";
-import { buildQuizRound, buildWeakPracticeList, calculateQuizScore, isAnswerCorrect } from "./study";
+import {
+  buildQuizRound,
+  buildWeakPracticeList,
+  calculateQuizScore,
+  filterItemsByCategories,
+  isAnswerCorrect,
+} from "./study";
 
 describe("calculateQuizScore", () => {
   it("counts correct and incorrect answers", () => {
@@ -106,9 +112,34 @@ describe("buildQuizRound", () => {
   });
 });
 
+describe("filterItemsByCategories", () => {
+  it("keeps only items that belong to the requested categories", () => {
+    const items: PracticeItem[] = [
+      { id: "one", category: "Väder och årstider", prompt: "Q1", answer: "A1" },
+      { id: "two", category: "Tal 80–200", prompt: "Q2", answer: "A2" },
+      { id: "three", category: "Väder och årstider", prompt: "Q3", answer: "A3" },
+    ];
+
+    expect(filterItemsByCategories(items, ["Väder och årstider"])).toEqual([
+      { id: "one", category: "Väder och årstider", prompt: "Q1", answer: "A1" },
+      { id: "three", category: "Väder och årstider", prompt: "Q3", answer: "A3" },
+    ]);
+  });
+});
+
 describe("isAnswerCorrect", () => {
+  it("accepts answers case-insensitively", () => {
+    expect(isAnswerCorrect("SUÉDOISE", "suédoise")).toBe(true);
+    expect(isAnswerCorrect("Il pleut.", "il pleut")).toBe(true);
+  });
+
   it("accepts answers with different punctuation apostrophes", () => {
     expect(isAnswerCorrect("Qu'est-ce que tu fais", "Qu'est-ce que tu fais ?")).toBe(true);
     expect(isAnswerCorrect("il n'a pas le temps", "Il n’a pas le temps.")).toBe(true);
+  });
+
+  it("trims surrounding whitespace from answers", () => {
+    expect(isAnswerCorrect("   cent   ", "cent")).toBe(true);
+    expect(isAnswerCorrect("\n  Je joue au tennis. \t", "Je joue au tennis.")).toBe(true);
   });
 });

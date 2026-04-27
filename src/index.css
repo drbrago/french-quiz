@@ -209,6 +209,13 @@ p {
   margin-bottom: 18px;
 }
 
+.timer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
 .section-heading {
   display: grid;
   gap: 8px;
@@ -279,6 +286,37 @@ p {
 .badge-cool {
   background: #ecf6f4;
   color: #0f6b6f;
+}
+
+.timer-chip {
+  min-width: 116px;
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: #eef6ff;
+  border: 1px solid rgba(15, 125, 199, 0.16);
+  color: #0d5a8f;
+  text-align: right;
+}
+
+.timer-chip span {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.timer-chip strong {
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-family: Georgia, "Times New Roman", serif;
+  color: #0f2f43;
+}
+
+.timer-chip.is-urgent {
+  background: #fff0ea;
+  border-color: rgba(199, 103, 35, 0.24);
+  color: #9b4512;
 }
 
 .flashcard,
@@ -370,6 +408,12 @@ p {
   color: #7c3d12;
 }
 
+.feedback-box.is-info {
+  background: #eef6ff;
+  border-color: rgba(15, 125, 199, 0.18);
+  color: #0d5a8f;
+}
+
 .saved-note {
   font-size: 0.95rem;
 }
@@ -405,6 +449,12 @@ p {
 .option-button.is-correct {
   background: #ecf8f0;
   border-color: rgba(23, 114, 69, 0.3);
+}
+
+.option-button.is-selected {
+  background: #eef6ff;
+  border-color: rgba(15, 125, 199, 0.34);
+  box-shadow: inset 0 0 0 1px rgba(15, 125, 199, 0.16);
 }
 
 .option-button.is-wrong {
@@ -470,6 +520,15 @@ input:disabled {
 
   .button-grid {
     grid-template-columns: 1fr;
+  }
+
+  .timer-row {
+    flex-direction: column;
+  }
+
+  .timer-chip {
+    width: 100%;
+    text-align: left;
   }
 
   .action-row > * {

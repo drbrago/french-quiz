@@ -3,6 +3,8 @@ import {
   allPracticeQuestions,
   faireExercises,
   flashcards,
+  focusedPracticeModes,
+  miniTestQuestions,
   quizQuestions,
   sentenceExercises,
   studyTips,
@@ -16,13 +18,24 @@ import {
   buildQuizRound,
   buildWeakPracticeList,
   calculateQuizScore,
+  filterItemsByCategories,
   isAnswerCorrect,
   shuffleArray,
   type QuizResult,
   type WeakPracticeItem,
 } from "./utils/study";
+import TenMinuteTest from "./features/ten-minute-test/TenMinuteTest";
 
-type Mode = "home" | "flashcards" | "faire" | "sentences" | "quiz" | "weak";
+type Mode =
+  | "home"
+  | "flashcards"
+  | "faire"
+  | "sentences"
+  | "quiz"
+  | "mini-test"
+  | "tenMinuteTest"
+  | "focused"
+  | "weak";
 type SentenceTab = "fill" | "translation";
 type CardSide = "french" | "swedish";
 
@@ -78,9 +91,23 @@ function createWeakSession(items: WeakPracticeItem[]): WeakSessionItem[] {
   });
 }
 
+function createQuizSession(questions: QuizQuestion[], count: number): QuizQuestion[] {
+  return buildQuizRound(questions, Math.min(count, questions.length));
+}
+
+function getTipsByIds(tipIds?: string[]): Tip[] {
+  if (!tipIds || tipIds.length === 0) {
+    return [];
+  }
+
+  const tipIdSet = new Set(tipIds);
+  return studyTips.filter((tip) => tipIdSet.has(tip.id));
+}
+
 function App() {
   const [mode, setMode] = useState<Mode>("home");
   const [sentenceTab, setSentenceTab] = useState<SentenceTab>("fill");
+  const [selectedFocusId, setSelectedFocusId] = useState("all-questions");
   const [weakFlashcardIds, setWeakFlashcardIds] = useLocalStorageState<string[]>("chapter4-weak-flashcards", []);
   const [weakQuestionIds, setWeakQuestionIds] = useLocalStorageState<string[]>("chapter4-weak-questions", []);
   const [lastScore, setLastScore] = useLocalStorageState<LastScore | null>("chapter4-last-score", null);
@@ -91,6 +118,12 @@ function App() {
     allPracticeQuestions,
     weakQuestionIds,
   );
+
+  const selectedFocus = focusedPracticeModes.find((item) => item.id === selectedFocusId);
+  const focusedItems =
+    selectedFocus?.source === "questions"
+      ? filterItemsByCategories(allPracticeQuestions, selectedFocus.categories)
+      : [];
 
   function addWeakFlashcard(id: string) {
     setWeakFlashcardIds((currentIds) => (currentIds.includes(id) ? currentIds : [...currentIds, id]));
@@ -108,10 +141,43 @@ function App() {
     setWeakQuestionIds((currentIds) => currentIds.filter((currentId) => currentId !== id));
   }
 
+  function openFocusedMode(focusId: string) {
+    const nextFocus = focusedPracticeModes.find((item) => item.id === focusId);
+
+    if (!nextFocus) {
+      return;
+    }
+
+    setSelectedFocusId(focusId);
+
+    if (nextFocus.source === "flashcards") {
+      setMode("flashcards");
+      return;
+    }
+
+    if (nextFocus.source === "sentences") {
+      setSentenceTab("fill");
+      setMode("sentences");
+      return;
+    }
+
+    if (nextFocus.source === "faire") {
+      setMode("faire");
+      return;
+    }
+
+    if (nextFocus.source === "weak") {
+      setMode("weak");
+      return;
+    }
+
+    setMode("focused");
+  }
+
   let page: JSX.Element;
 
   if (mode === "home") {
-    page = <StartPage lastScore={lastScore} onOpenMode={setMode} />;
+    page = <StartPage lastScore={lastScore} onOpenMode={setMode} onOpenFocusedMode={openFocusedMode} />;
   } else if (mode === "flashcards") {
     page = (
       <FlashcardsPage
@@ -150,9 +216,53 @@ function App() {
     page = (
       <QuizPage
         questions={quizQuestions}
+        questionCount={15}
+        title="Quizläge"
+        description="Femton blandade frågor från hela kapitlet. Resultatet sparas lokalt så att du kan följa senaste rundan."
+        resultTitle="Quizet är klart"
+        tips={studyTips.filter((tip) => tip.id === "tip-jouer" || tip.id === "tip-weekdays")}
         onBack={() => setMode("home")}
         onMarkWeak={addWeakQuestion}
         onSaveScore={setLastScore}
+      />
+    );
+  } else if (mode === "mini-test") {
+    page = (
+      <QuizPage
+        questions={miniTestQuestions}
+        questionCount={20}
+        title="Provträning"
+        description="Tjugo frågor med glosor, luckor, faire, väder, länder, tal och läsförståelse. Alla fel går att träna direkt efteråt."
+        resultTitle="Provträningen är klar"
+        restartLabel="Gör ett nytt prov"
+        enableRetryIncorrect
+        tips={getTipsByIds(["tip-faire", "tip-countries", "tip-weather-seasons", "tip-numbers"])}
+        onBack={() => setMode("home")}
+        onMarkWeak={addWeakQuestion}
+        onSaveScore={setLastScore}
+      />
+    );
+  } else if (mode === "tenMinuteTest") {
+    page = (
+      <TenMinuteTest
+        questions={quizQuestions}
+        onBack={() => setMode("home")}
+        onMarkWeak={addWeakQuestion}
+        onOpenWeak={() => setMode("weak")}
+      />
+    );
+  } else if (mode === "focused" && selectedFocus?.source === "questions") {
+    page = (
+      <TextPracticePage
+        title={selectedFocus.title}
+        subtitle={selectedFocus.description}
+        items={focusedItems}
+        inputLabel="Skriv ditt svar"
+        inputPlaceholder="Skriv här"
+        tips={getTipsByIds(selectedFocus.tipIds)}
+        onBack={() => setMode("home")}
+        onMarkKnown={removeWeakQuestion}
+        onMarkWeak={addWeakQuestion}
       />
     );
   } else {
@@ -172,9 +282,11 @@ function App() {
 function StartPage({
   lastScore,
   onOpenMode,
+  onOpenFocusedMode,
 }: {
   lastScore: LastScore | null;
   onOpenMode: (mode: Mode) => void;
+  onOpenFocusedMode: (focusId: string) => void;
 }) {
   const formattedScoreDate = lastScore
     ? new Date(lastScore.savedAt).toLocaleString("sv-SE", {
@@ -191,13 +303,13 @@ function StartPage({
         <div className="eyebrow">Kapitel 4</div>
         <h1>Franskaprov kapitel 4</h1>
         <p className="hero-copy">
-          Öva glosor, veckodagar, familjeord, sporter, väder och meningar från "La semaine de la famille
-          Hussein". Allt fungerar lokalt i mobilen eller på datorn.
+          Öva glosor, väder, faire, Kanada och Québec, länder och nationaliteter, tal, beskrivningar
+          och läsförståelse från kapitel 4. Allt fungerar lokalt i mobilen eller på datorn.
         </p>
 
         {lastScore ? (
           <div className="score-chip">
-            Senaste quizresultat: <strong>{lastScore.correct} / {lastScore.total}</strong>
+            Senaste sparade resultat: <strong>{lastScore.correct} / {lastScore.total}</strong>
             {formattedScoreDate ? <span>· {formattedScoreDate}</span> : null}
           </div>
         ) : null}
@@ -215,6 +327,12 @@ function StartPage({
           <button className="primary-button" onClick={() => onOpenMode("quiz")}>
             Quizläge
           </button>
+          <button className="primary-button" onClick={() => onOpenMode("mini-test")}>
+            Provträning
+          </button>
+          <button className="primary-button" onClick={() => onOpenMode("tenMinuteTest")}>
+            Prov på 10 minuter
+          </button>
           <button className="secondary-button" onClick={() => onOpenMode("weak")}>
             Fel jag behöver öva på
           </button>
@@ -223,17 +341,34 @@ function StartPage({
 
       <section className="content-card">
         <div className="section-heading">
+          <h2>Fokusträning</h2>
+          <p>Välj ett område om du vill träna en smalare del av kapitlet i stället för hela blandningen.</p>
+        </div>
+        <div className="button-grid">
+          {focusedPracticeModes.map((focus) => (
+            <button className="secondary-button" key={focus.id} onClick={() => onOpenFocusedMode(focus.id)}>
+              {focus.label}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="content-card">
+        <div className="section-heading">
           <h2>Vad du tränar här</h2>
-          <p>Kapitel 4 blandar ordkunskap, korta meningar och översättning i båda riktningarna.</p>
+          <p>Kapitel 4 blandar glosor, korta meningar, översättning och läsförståelse i båda riktningarna.</p>
         </div>
         <div className="pill-row">
           <span className="pill">Dagar</span>
-          <span className="pill">Datum och tid</span>
           <span className="pill">Familj</span>
           <span className="pill">Sport och aktiviteter</span>
-          <span className="pill">Väder</span>
-          <span className="pill">faire</span>
-          <span className="pill">Översättning</span>
+          <span className="pill">Väder och årstider</span>
+          <span className="pill">Faire</span>
+          <span className="pill">Kanada och Québec</span>
+          <span className="pill">Länder och nationaliteter</span>
+          <span className="pill">Beskriva personer</span>
+          <span className="pill">Mes copains</span>
+          <span className="pill">Tal</span>
         </div>
       </section>
 
@@ -523,7 +658,12 @@ function TextPracticePage({
       <TipsSection tips={tips} />
 
       <section className="content-card">
-        {isFinished ? (
+        {items.length === 0 ? (
+          <div className="empty-state">
+            <h2>Inga frågor i den här delen ännu</h2>
+            <p>Den här fokusrundan saknar innehåll just nu.</p>
+          </div>
+        ) : isFinished ? (
           <CompletionCard
             title={`${title} är klar`}
             summary={`Du hade ${correctCount} rätt av ${session.length}. Du kan blanda om och köra en ny runda direkt.`}
@@ -589,31 +729,64 @@ function TextPracticePage({
 
 function QuizPage({
   questions,
+  questionCount,
+  title,
+  description,
+  resultTitle,
+  tips,
   onBack,
   onMarkWeak,
   onSaveScore,
+  restartLabel = "Ny quizrunda",
+  enableRetryIncorrect = false,
 }: {
   questions: QuizQuestion[];
+  questionCount: number;
+  title: string;
+  description: string;
+  resultTitle: string;
+  tips: Tip[];
   onBack: () => void;
   onMarkWeak: (id: string) => void;
   onSaveScore: (score: LastScore | null | ((current: LastScore | null) => LastScore | null)) => void;
+  restartLabel?: string;
+  enableRetryIncorrect?: boolean;
 }) {
-  const [session, setSession] = useState<QuizQuestion[]>(() => buildQuizRound(questions, 15));
+  const [session, setSession] = useState<QuizQuestion[]>(() => createQuizSession(questions, questionCount));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; userAnswer: string } | null>(null);
   const [results, setResults] = useState<QuizResult[]>([]);
+  const [isRetryRound, setIsRetryRound] = useState(false);
 
   const currentQuestion = session[currentIndex];
   const score = calculateQuizScore(results);
   const isFinished = currentIndex >= session.length;
+  const percent = score.total === 0 ? 0 : Math.round((score.correct / score.total) * 100);
 
   function restart() {
-    setSession(buildQuizRound(questions, 15));
+    setSession(createQuizSession(questions, questionCount));
     setCurrentIndex(0);
     setAnswer("");
     setFeedback(null);
     setResults([]);
+    setIsRetryRound(false);
+  }
+
+  function retryIncorrect() {
+    const incorrectQuestionIds = new Set(score.incorrect.map((result) => result.questionId));
+    const incorrectQuestions = session.filter((question) => incorrectQuestionIds.has(question.id));
+
+    if (incorrectQuestions.length === 0) {
+      return;
+    }
+
+    setSession(shuffleArray(incorrectQuestions));
+    setCurrentIndex(0);
+    setAnswer("");
+    setFeedback(null);
+    setResults([]);
+    setIsRetryRound(true);
   }
 
   function saveResult(userAnswer: string) {
@@ -621,7 +794,7 @@ function QuizPage({
       return;
     }
 
-    const isCorrect = isAnswerCorrect(userAnswer, currentQuestion.answer);
+    const isCorrect = isAnswerCorrect(userAnswer, currentQuestion.answer, currentQuestion.alternatives ?? []);
     const nextResults = [
       ...results,
       {
@@ -642,7 +815,7 @@ function QuizPage({
     setResults(nextResults);
     setFeedback({ isCorrect, userAnswer });
 
-    if (nextResults.length === session.length) {
+    if (nextResults.length === session.length && !isRetryRound) {
       const nextScore = calculateQuizScore(nextResults);
       onSaveScore({
         correct: nextScore.correct,
@@ -665,21 +838,18 @@ function QuizPage({
 
   return (
     <main className="page">
-      <StudyHeader
-        title="Quizläge"
-        description="Femton blandade frågor från hela kapitlet. Resultatet sparas lokalt så att du kan följa senaste rundan."
-        onBack={onBack}
-      />
+      <StudyHeader title={title} description={description} onBack={onBack} />
 
-      <TipsSection tips={studyTips.filter((tip) => tip.id === "tip-jouer" || tip.id === "tip-weekdays")} />
+      <TipsSection tips={tips} />
 
       <section className="content-card">
         {isFinished ? (
           <div className="result-card">
-            <h2>Quizet är klart</h2>
+            <h2>{resultTitle}</h2>
             <p className="score-value">
               {score.correct} / {score.total}
             </p>
+            <p className="muted-text">{percent}% rätt.</p>
             <p className="muted-text">Fel svar är sparade i "Fel jag behöver öva på".</p>
 
             {score.incorrect.length > 0 ? (
@@ -705,8 +875,13 @@ function QuizPage({
 
             <div className="action-row">
               <button className="primary-button" onClick={restart}>
-                Ny quizrunda
+                {restartLabel}
               </button>
+              {enableRetryIncorrect && score.incorrect.length > 0 ? (
+                <button className="secondary-button" onClick={retryIncorrect}>
+                  Träna bara på felen
+                </button>
+              ) : null}
             </div>
           </div>
         ) : currentQuestion ? (
@@ -717,6 +892,7 @@ function QuizPage({
               <span className="badge badge-cool">
                 {currentQuestion.type === "multiple-choice" ? "Flerval" : "Skriv själv"}
               </span>
+              {isRetryRound ? <span className="badge badge-warm">Bara tidigare fel</span> : null}
             </div>
 
             <div className="question-card">
@@ -805,12 +981,13 @@ function WeakPracticePage({
   const [session, setSession] = useState<WeakSessionItem[]>(() => createWeakSession(items));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
+  const weakSessionKey = items.map((item) => item.id).join("|");
 
   useEffect(() => {
     setSession(createWeakSession(items));
     setCurrentIndex(0);
     setShowAnswer(false);
-  }, [items.length]);
+  }, [weakSessionKey]);
 
   if (items.length === 0) {
     return (
@@ -883,9 +1060,7 @@ function WeakPracticePage({
             <ProgressBar current={currentIndex + 1} total={session.length} />
             <div className="badge-row">
               <span className="badge">{currentItem.category}</span>
-              <span className="badge badge-cool">
-                {currentItem.kind === "flashcard" ? "Glosa" : "Fråga"}
-              </span>
+              <span className="badge badge-cool">{currentItem.kind === "flashcard" ? "Glosa" : "Fråga"}</span>
             </div>
 
             <div className="flashcard">
@@ -957,6 +1132,10 @@ function StudyHeader({
 }
 
 function TipsSection({ tips }: { tips: Tip[] }) {
+  if (tips.length === 0) {
+    return null;
+  }
+
   return (
     <section className="tip-grid">
       {tips.map((tip) => (
