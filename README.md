@@ -71,3 +71,4 @@ För fler textövningar kan du utöka:
 
 Varje objekt behöver ett unikt `id`, en tydlig `category`, en `prompt` och ett `answer`. Om du vill ge extra stöd efter svaret kan du fylla i `explanation`.
 # french-quiz
+# french-quiz
