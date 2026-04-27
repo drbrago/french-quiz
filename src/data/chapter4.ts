@@ -1,0 +1,578 @@
+export type Flashcard = {
+  id: string;
+  category: string;
+  french: string;
+  swedish: string;
+};
+
+export type QuizQuestion = {
+  id: string;
+  category: string;
+  type: "multiple-choice" | "text";
+  prompt: string;
+  answer: string;
+  options?: string[];
+  explanation?: string;
+};
+
+export type PracticeItem = {
+  id: string;
+  category: string;
+  prompt: string;
+  answer: string;
+  explanation?: string;
+  alternatives?: string[];
+};
+
+export type Tip = {
+  id: string;
+  title: string;
+  text: string;
+};
+
+export const flashcards: Flashcard[] = [
+  { id: "day-lundi", category: "Dagar", french: "lundi", swedish: "måndag" },
+  { id: "day-mardi", category: "Dagar", french: "mardi", swedish: "tisdag" },
+  { id: "day-mercredi", category: "Dagar", french: "mercredi", swedish: "onsdag" },
+  { id: "day-jeudi", category: "Dagar", french: "jeudi", swedish: "torsdag" },
+  { id: "day-vendredi", category: "Dagar", french: "vendredi", swedish: "fredag" },
+  { id: "day-samedi", category: "Dagar", french: "samedi", swedish: "lördag" },
+  { id: "day-dimanche", category: "Dagar", french: "dimanche", swedish: "söndag" },
+  { id: "family-famille", category: "Familj", french: "la famille", swedish: "familjen" },
+  { id: "family-maman", category: "Familj", french: "maman", swedish: "mamma" },
+  { id: "family-papa", category: "Familj", french: "papa", swedish: "pappa" },
+  { id: "family-frere", category: "Familj", french: "frère", swedish: "bror" },
+  { id: "family-soeur", category: "Familj", french: "sœur", swedish: "syster" },
+  { id: "family-cousin", category: "Familj", french: "cousin", swedish: "kusin" },
+  { id: "family-cousine", category: "Familj", french: "cousine", swedish: "kusin" },
+  { id: "family-parents", category: "Familj", french: "les parents", swedish: "föräldrarna" },
+  { id: "family-enfants", category: "Familj", french: "les enfants", swedish: "barnen" },
+  { id: "activity-foot", category: "Sport och aktiviteter", french: "le foot", swedish: "fotboll" },
+  { id: "activity-tennis", category: "Sport och aktiviteter", french: "le tennis", swedish: "tennis" },
+  { id: "activity-basket", category: "Sport och aktiviteter", french: "le basket", swedish: "basket" },
+  { id: "activity-judo", category: "Sport och aktiviteter", french: "le judo", swedish: "judo" },
+  { id: "activity-cheval", category: "Sport och aktiviteter", french: "le cheval", swedish: "häst eller ridning" },
+  { id: "activity-faire-cheval", category: "Sport och aktiviteter", french: "faire du cheval", swedish: "rida" },
+  { id: "activity-faire-ski", category: "Sport och aktiviteter", french: "faire du ski", swedish: "åka skidor" },
+  { id: "activity-faire-velo", category: "Sport och aktiviteter", french: "faire du vélo", swedish: "cykla" },
+  { id: "activity-faire-judo", category: "Sport och aktiviteter", french: "faire du judo", swedish: "träna judo" },
+  { id: "activity-faire-foot", category: "Sport och aktiviteter", french: "faire du foot", swedish: "spela fotboll" },
+  { id: "activity-faire-tennis", category: "Sport och aktiviteter", french: "faire du tennis", swedish: "spela tennis" },
+  { id: "activity-faire-basket", category: "Sport och aktiviteter", french: "faire du basket", swedish: "spela basket" },
+  { id: "activity-faire-patinage", category: "Sport och aktiviteter", french: "faire du patinage", swedish: "åka skridskor" },
+  { id: "activity-faire-courses", category: "Sport och aktiviteter", french: "faire des courses", swedish: "handla" },
+  { id: "phrase-questu", category: "Fraser", french: "Qu'est-ce que tu fais ?", swedish: "Vad gör du?" },
+  { id: "phrase-quesil", category: "Fraser", french: "Qu'est-ce qu'il fait ?", swedish: "Vad gör han?" },
+  { id: "phrase-queselle", category: "Fraser", french: "Qu'est-ce qu'elle fait ?", swedish: "Vad gör hon?" },
+  { id: "phrase-je-cheval", category: "Fraser", french: "Je fais du cheval.", swedish: "Jag rider." },
+  { id: "phrase-je-ski", category: "Fraser", french: "Je fais du ski.", swedish: "Jag åker skidor." },
+  { id: "phrase-elle-judo", category: "Fraser", french: "Elle fait du judo.", swedish: "Hon tränar judo." },
+  { id: "phrase-il-jogging", category: "Fraser", french: "Il fait du jogging.", swedish: "Han joggar." },
+  { id: "phrase-adore", category: "Fraser", french: "Il adore tous les sports.", swedish: "Han älskar alla sporter." },
+  { id: "phrase-tu-foot", category: "Fraser", french: "Tu joues au foot ?", swedish: "Spelar du fotboll?" },
+  { id: "phrase-je-tennis", category: "Fraser", french: "Je joue au tennis.", swedish: "Jag spelar tennis." },
+  { id: "phrase-ne-joue-pas", category: "Fraser", french: "Je ne joue pas.", swedish: "Jag spelar inte." },
+  { id: "phrase-je-pas-temps", category: "Fraser", french: "Je n'ai pas le temps.", swedish: "Jag har inte tid." },
+  { id: "phrase-il-pas-temps", category: "Fraser", french: "Il n'a pas le temps.", swedish: "Han har inte tid." },
+  { id: "phrase-pas-moi", category: "Fraser", french: "Pas moi.", swedish: "Inte jag." },
+  { id: "phrase-moi-tennis", category: "Fraser", french: "Moi, je joue au tennis.", swedish: "Jag spelar tennis." },
+  { id: "weather-froid", category: "Väder", french: "Il fait très froid.", swedish: "Det är mycket kallt." },
+  { id: "weather-beau", category: "Väder", french: "Il fait très beau.", swedish: "Det är mycket vackert väder." },
+  { id: "weather-question", category: "Väder", french: "Quel temps fait-il ?", swedish: "Vad är det för väder?" },
+  { id: "weather-pleut", category: "Väder", french: "Il pleut.", swedish: "Det regnar." },
+  { id: "weather-neige", category: "Väder", french: "Il neige.", swedish: "Det snöar." },
+  { id: "weather-vent", category: "Väder", french: "Il fait du vent.", swedish: "Det blåser." },
+  { id: "weather-soleil", category: "Väder", french: "Il fait du soleil.", swedish: "Det är soligt." },
+  { id: "time-aujourdhui", category: "Tid", french: "aujourd'hui", swedish: "idag" },
+  { id: "time-demain", category: "Tid", french: "demain", swedish: "imorgon" },
+  { id: "time-matin", category: "Tid", french: "le matin", swedish: "på morgonen" },
+  { id: "time-six", category: "Tid", french: "à six heures", swedish: "klockan sex" },
+  { id: "time-ete", category: "Tid", french: "en été", swedish: "på sommaren" },
+  { id: "time-hiver", category: "Tid", french: "en hiver", swedish: "på vintern" },
+  { id: "time-tous-les-jours", category: "Tid", french: "tous les jours", swedish: "varje dag" },
+  { id: "time-souvent", category: "Tid", french: "souvent", swedish: "ofta" },
+  { id: "time-jamais", category: "Tid", french: "jamais", swedish: "aldrig" },
+  { id: "faire-je", category: "Faire", french: "je fais", swedish: "jag gör" },
+  { id: "faire-tu", category: "Faire", french: "tu fais", swedish: "du gör" },
+  { id: "faire-il", category: "Faire", french: "il fait", swedish: "han gör" },
+  { id: "faire-elle", category: "Faire", french: "elle fait", swedish: "hon gör" },
+  { id: "faire-nous", category: "Faire", french: "nous faisons", swedish: "vi gör" },
+  { id: "faire-vous", category: "Faire", french: "vous faites", swedish: "ni gör" },
+  { id: "faire-ils", category: "Faire", french: "ils font", swedish: "de gör" },
+  { id: "faire-elles", category: "Faire", french: "elles font", swedish: "de gör" },
+  { id: "quantity-km1", category: "Tal och priser", french: "un kilomètre à pied", swedish: "en kilometer till fots" },
+  { id: "quantity-km2", category: "Tal och priser", french: "deux kilomètres à pied", swedish: "två kilometer till fots" },
+  { id: "quantity-km3", category: "Tal och priser", french: "trois kilomètres à pied", swedish: "tre kilometer till fots" },
+  { id: "quantity-cent", category: "Tal och priser", french: "cent", swedish: "hundra" },
+  { id: "quantity-deux-cents", category: "Tal och priser", french: "deux cents", swedish: "två hundra" },
+  { id: "quantity-qv80", category: "Tal och priser", french: "quatre-vingts", swedish: "åttio" },
+  { id: "quantity-qv90", category: "Tal och priser", french: "quatre-vingt-dix", swedish: "nittio" },
+  { id: "quantity-qv91", category: "Tal och priser", french: "quatre-vingt-onze", swedish: "nittioett" },
+  { id: "quantity-qv99", category: "Tal och priser", french: "quatre-vingt-dix-neuf", swedish: "nittionio" },
+];
+
+export const faireExercises: PracticeItem[] = [
+  { id: "faire-trainer-je", category: "Faire", prompt: "je ____", answer: "fais", explanation: "je fais betyder 'jag gör'." },
+  { id: "faire-trainer-tu", category: "Faire", prompt: "tu ____", answer: "fais", explanation: "tu fais betyder 'du gör'." },
+  { id: "faire-trainer-il", category: "Faire", prompt: "il ____", answer: "fait", explanation: "il fait betyder 'han gör'. Samma form används också i väderuttryck." },
+  { id: "faire-trainer-elle", category: "Faire", prompt: "elle ____", answer: "fait", explanation: "elle fait betyder 'hon gör'." },
+  { id: "faire-trainer-nous", category: "Faire", prompt: "nous ____", answer: "faisons", explanation: "nous faisons betyder 'vi gör'." },
+  { id: "faire-trainer-vous", category: "Faire", prompt: "vous ____", answer: "faites", explanation: "vous faites betyder 'ni gör'." },
+  { id: "faire-trainer-ils", category: "Faire", prompt: "ils ____", answer: "font", explanation: "ils font betyder 'de gör'." },
+  { id: "faire-trainer-elles", category: "Faire", prompt: "elles ____", answer: "font", explanation: "elles font betyder 'de gör'." },
+];
+
+export const sentenceExercises: PracticeItem[] = [
+  {
+    id: "sentence-papa",
+    category: "Meningar",
+    prompt: "Mon papa ____ du sport tous les jours.",
+    answer: "fait",
+    explanation: "Mon papa är tredje person singular, så du använder 'fait'.",
+  },
+  {
+    id: "sentence-age",
+    category: "Meningar",
+    prompt: "Tu ____ quel âge ?",
+    answer: "as",
+    explanation: "Uttrycket är 'Tu as quel âge ?'.",
+  },
+  {
+    id: "sentence-karim",
+    category: "Meningar",
+    prompt: "Karim ____ du judo.",
+    answer: "fait",
+    explanation: "Karim är tredje person singular: il fait du judo.",
+  },
+  {
+    id: "sentence-elle-cheval",
+    category: "Meningar",
+    prompt: "Elle ____ du cheval.",
+    answer: "fait",
+    explanation: "Med aktiviteter blir det 'elle fait du cheval'.",
+  },
+  {
+    id: "sentence-froid",
+    category: "Meningar",
+    prompt: "Il ____ très froid.",
+    answer: "fait",
+    explanation: "I väderuttryck används ofta 'il fait'.",
+  },
+  {
+    id: "sentence-tennis",
+    category: "Meningar",
+    prompt: "Je ____ au tennis.",
+    answer: "joue",
+    explanation: "Man säger 'jouer au tennis' för sporter som spelas.",
+  },
+  {
+    id: "sentence-temps",
+    category: "Meningar",
+    prompt: "Je n'____ pas le temps.",
+    answer: "ai",
+    explanation: "Uttrycket är 'Je n'ai pas le temps'.",
+  },
+  {
+    id: "sentence-six",
+    category: "Meningar",
+    prompt: "Il ____ à six heures.",
+    answer: "fait",
+    explanation: "Kapitelövningen vill att du känner igen formen 'il fait'.",
+  },
+];
+
+export const translationExercises: PracticeItem[] = [
+  {
+    id: "translation-sv-fr-questu",
+    category: "Översättning",
+    prompt: "Skriv på franska: Vad gör du?",
+    answer: "Qu'est-ce que tu fais ?",
+    explanation: "Frågans stomme är 'Qu'est-ce que ... fait ?'.",
+  },
+  {
+    id: "translation-sv-fr-cheval",
+    category: "Översättning",
+    prompt: "Skriv på franska: Jag rider.",
+    answer: "Je fais du cheval.",
+    explanation: "Ridning uttrycks med 'faire du cheval'.",
+  },
+  {
+    id: "translation-sv-fr-jogging",
+    category: "Översättning",
+    prompt: "Skriv på franska: Han joggar.",
+    answer: "Il fait du jogging.",
+    explanation: "Aktiviteten uttrycks med 'faire du jogging'.",
+  },
+  {
+    id: "translation-sv-fr-judo",
+    category: "Översättning",
+    prompt: "Skriv på franska: Hon tränar judo.",
+    answer: "Elle fait du judo.",
+    explanation: "Aktivitet + 'faire du' är vanlig i kapitel 4.",
+  },
+  {
+    id: "translation-sv-fr-pleut",
+    category: "Översättning",
+    prompt: "Skriv på franska: Det regnar.",
+    answer: "Il pleut.",
+    explanation: "Vissa väderuttryck använder egna verb, som 'pleuvoir'.",
+  },
+  {
+    id: "translation-sv-fr-neige",
+    category: "Översättning",
+    prompt: "Skriv på franska: Det snöar.",
+    answer: "Il neige.",
+    explanation: "Samma mönster som 'Il pleut'.",
+  },
+  {
+    id: "translation-sv-fr-tennis",
+    category: "Översättning",
+    prompt: "Skriv på franska: Jag spelar tennis.",
+    answer: "Je joue au tennis.",
+    explanation: "För sporter som spelas används ofta 'jouer au'.",
+  },
+  {
+    id: "translation-sv-fr-temps",
+    category: "Översättning",
+    prompt: "Skriv på franska: Jag har inte tid.",
+    answer: "Je n'ai pas le temps.",
+    explanation: "Tänk på negationen 'ne ... pas'.",
+  },
+  {
+    id: "translation-fr-sv-adore",
+    category: "Översättning",
+    prompt: "Översätt till svenska: Il adore tous les sports.",
+    answer: "Han älskar alla sporter.",
+    explanation: "'adore' betyder älskar.",
+  },
+  {
+    id: "translation-fr-sv-cheval",
+    category: "Översättning",
+    prompt: "Översätt till svenska: Elle fait du cheval.",
+    answer: "Hon rider.",
+    explanation: "Direkt uttryckt blir det 'hon gör häst', men den naturliga svenska översättningen är 'hon rider'.",
+  },
+  {
+    id: "translation-fr-sv-froid",
+    category: "Översättning",
+    prompt: "Översätt till svenska: Il fait très froid.",
+    answer: "Det är mycket kallt.",
+    explanation: "'Il fait' används ofta i väderuttryck.",
+  },
+  {
+    id: "translation-fr-sv-foot",
+    category: "Översättning",
+    prompt: "Översätt till svenska: Tu joues au foot ?",
+    answer: "Spelar du fotboll?",
+    explanation: "'joues' kommer från verbet jouer.",
+  },
+  {
+    id: "translation-fr-sv-ne-joue-pas",
+    category: "Översättning",
+    prompt: "Översätt till svenska: Je ne joue pas.",
+    answer: "Jag spelar inte.",
+    explanation: "Negationen 'ne ... pas' betyder att man inte gör något.",
+  },
+  {
+    id: "translation-fr-sv-temps-question",
+    category: "Översättning",
+    prompt: "Översätt till svenska: Quel temps fait-il ?",
+    answer: "Vad är det för väder?",
+    explanation: "Det är standardfrågan om väder.",
+  },
+  {
+    id: "translation-fr-sv-soleil",
+    category: "Översättning",
+    prompt: "Översätt till svenska: Il fait du soleil.",
+    answer: "Det är soligt.",
+    explanation: "Det beskriver att solen skiner.",
+  },
+  {
+    id: "translation-fr-sv-courses",
+    category: "Översättning",
+    prompt: "Översätt till svenska: Je fais des courses.",
+    answer: "Jag handlar.",
+    explanation: "'faire des courses' betyder att handla.",
+  },
+];
+
+export const quizQuestions: QuizQuestion[] = [
+  {
+    id: "quiz-jeudi",
+    category: "Dagar",
+    type: "multiple-choice",
+    prompt: "Vad heter torsdag på franska?",
+    answer: "jeudi",
+    options: ["jeudi", "mardi", "samedi", "lundi"],
+    explanation: "Franska veckodagar skrivs med liten bokstav.",
+  },
+  {
+    id: "quiz-mardi",
+    category: "Dagar",
+    type: "multiple-choice",
+    prompt: "Vilken veckodag är 'mardi'?",
+    answer: "tisdag",
+    options: ["tisdag", "torsdag", "söndag", "fredag"],
+  },
+  {
+    id: "quiz-enfants",
+    category: "Familj",
+    type: "multiple-choice",
+    prompt: "Vad betyder 'les enfants'?",
+    answer: "barnen",
+    options: ["barnen", "föräldrarna", "kusinerna", "syskonen"],
+  },
+  {
+    id: "quiz-soeur",
+    category: "Familj",
+    type: "multiple-choice",
+    prompt: "Vilket ord betyder 'syster'?",
+    answer: "sœur",
+    options: ["sœur", "frère", "maman", "cousine"],
+  },
+  {
+    id: "quiz-ski",
+    category: "Sport och aktiviteter",
+    type: "multiple-choice",
+    prompt: "Vilken mening betyder 'Jag åker skidor.'?",
+    answer: "Je fais du ski.",
+    options: [
+      "Je fais du ski.",
+      "Je joue au tennis.",
+      "Je fais du cheval.",
+      "Je fais des courses.",
+    ],
+  },
+  {
+    id: "quiz-questu",
+    category: "Fraser",
+    type: "text",
+    prompt: "Skriv på franska: Vad gör du?",
+    answer: "Qu'est-ce que tu fais ?",
+    explanation: "Frågans stomme är 'Qu'est-ce que ... fait ?'.",
+  },
+  {
+    id: "quiz-temps-question",
+    category: "Väder",
+    type: "text",
+    prompt: "Skriv på svenska: Quel temps fait-il ?",
+    answer: "Vad är det för väder?",
+    explanation: "'Il fait' dyker ofta upp i väderfraser.",
+  },
+  {
+    id: "quiz-nous",
+    category: "Faire",
+    type: "multiple-choice",
+    prompt: "Vilken form passar i 'nous ____'?",
+    answer: "faisons",
+    options: ["faisons", "fait", "font", "faites"],
+  },
+  {
+    id: "quiz-pleut",
+    category: "Väder",
+    type: "text",
+    prompt: "Skriv på franska: Det regnar.",
+    answer: "Il pleut.",
+  },
+  {
+    id: "quiz-souvent",
+    category: "Tid",
+    type: "multiple-choice",
+    prompt: "Vad betyder 'souvent'?",
+    answer: "ofta",
+    options: ["ofta", "aldrig", "imorgon", "varje dag"],
+  },
+  {
+    id: "quiz-pas-temps",
+    category: "Fraser",
+    type: "text",
+    prompt: "Skriv på svenska: Je n'ai pas le temps.",
+    answer: "Jag har inte tid.",
+  },
+  {
+    id: "quiz-jouer",
+    category: "Sport och aktiviteter",
+    type: "multiple-choice",
+    prompt: "Vilket uttryck använder du för 'spela tennis'?",
+    answer: "jouer au tennis",
+    options: ["jouer au tennis", "faire de tennis", "faire au tennis", "jouer du tennis"],
+    explanation: "För sporter och spel används ofta 'jouer au'.",
+  },
+  {
+    id: "quiz-karim",
+    category: "Meningar",
+    type: "text",
+    prompt: "Skriv rätt ord: Karim ____ du judo.",
+    answer: "fait",
+  },
+  {
+    id: "quiz-cheval",
+    category: "Sport och aktiviteter",
+    type: "text",
+    prompt: "Skriv på franska: Jag rider.",
+    answer: "Je fais du cheval.",
+  },
+  {
+    id: "quiz-qv80",
+    category: "Tal och priser",
+    type: "multiple-choice",
+    prompt: "Vad betyder 'quatre-vingts'?",
+    answer: "åttio",
+    options: ["åttio", "nittio", "nittioett", "hundra"],
+  },
+  {
+    id: "quiz-soleil",
+    category: "Väder",
+    type: "text",
+    prompt: "Skriv på svenska: Il fait du soleil.",
+    answer: "Det är soligt.",
+  },
+  {
+    id: "quiz-il-temps",
+    category: "Fraser",
+    type: "multiple-choice",
+    prompt: "Vilken mening betyder 'Han har inte tid.'?",
+    answer: "Il n'a pas le temps.",
+    options: [
+      "Il n'a pas le temps.",
+      "Je n'ai pas le temps.",
+      "Il fait du temps.",
+      "Il ne joue pas.",
+    ],
+  },
+  {
+    id: "quiz-tennis",
+    category: "Sport och aktiviteter",
+    type: "text",
+    prompt: "Skriv på franska: Jag spelar tennis.",
+    answer: "Je joue au tennis.",
+  },
+  {
+    id: "quiz-matin",
+    category: "Tid",
+    type: "multiple-choice",
+    prompt: "Vilket uttryck betyder 'på morgonen'?",
+    answer: "le matin",
+    options: ["le matin", "en hiver", "demain", "tous les jours"],
+  },
+  {
+    id: "quiz-neige",
+    category: "Väder",
+    type: "text",
+    prompt: "Skriv på franska: Det snöar.",
+    answer: "Il neige.",
+  },
+  {
+    id: "quiz-elles",
+    category: "Faire",
+    type: "multiple-choice",
+    prompt: "Vilken form är rätt i 'elles ____'?",
+    answer: "font",
+    options: ["font", "fait", "faites", "fais"],
+  },
+  {
+    id: "quiz-adore",
+    category: "Fraser",
+    type: "text",
+    prompt: "Skriv på svenska: Il adore tous les sports.",
+    answer: "Han älskar alla sporter.",
+  },
+  {
+    id: "quiz-weekdays",
+    category: "Tips",
+    type: "multiple-choice",
+    prompt: "Vilken regel stämmer om veckodagar på franska?",
+    answer: "De skrivs med liten bokstav.",
+    options: [
+      "De skrivs med liten bokstav.",
+      "De skrivs alltid med stor bokstav.",
+      "De skrivs alltid med accent.",
+      "De skrivs bara i plural.",
+    ],
+  },
+  {
+    id: "quiz-tous-les-jours",
+    category: "Tid",
+    type: "multiple-choice",
+    prompt: "Vad betyder 'tous les jours'?",
+    answer: "varje dag",
+    options: ["varje dag", "aldrig", "hela veckan", "hela dagen"],
+  },
+  {
+    id: "quiz-six",
+    category: "Meningar",
+    type: "text",
+    prompt: "Skriv rätt ord: Il ____ à six heures.",
+    answer: "fait",
+    explanation: "Här är det den form kapitlet vill att du känner igen: 'il fait'.",
+  },
+  {
+    id: "quiz-judo",
+    category: "Sport och aktiviteter",
+    type: "multiple-choice",
+    prompt: "Vilken mening betyder 'Hon tränar judo.'?",
+    answer: "Elle fait du judo.",
+    options: [
+      "Elle fait du judo.",
+      "Elle joue au judo.",
+      "Il fait du judo.",
+      "Elle fait du cheval.",
+    ],
+  },
+  {
+    id: "quiz-courses",
+    category: "Fraser",
+    type: "text",
+    prompt: "Skriv på svenska: Je fais des courses.",
+    answer: "Jag handlar.",
+  },
+  {
+    id: "quiz-demain",
+    category: "Tid",
+    type: "multiple-choice",
+    prompt: "Vad betyder 'demain'?",
+    answer: "imorgon",
+    options: ["imorgon", "idag", "på vintern", "på morgonen"],
+  },
+];
+
+export const studyTips: Tip[] = [
+  {
+    id: "tip-faire",
+    title: "faire = göra",
+    text: "Verbet 'faire' betyder oftast 'göra', men dyker också upp i uttryck med aktiviteter.",
+  },
+  {
+    id: "tip-il-fait",
+    title: "il fait har två roller",
+    text: "'il fait' kan betyda 'han gör' men används också i väderfraser som 'il fait très froid'.",
+  },
+  {
+    id: "tip-jouer",
+    title: "jouer au",
+    text: "Använd 'jouer au' för sporter och spel: 'je joue au tennis'.",
+  },
+  {
+    id: "tip-faire-activity",
+    title: "faire du, de la, des",
+    text: "Använd 'faire du/de la/des' för aktiviteter: 'faire du judo', 'faire des courses'.",
+  },
+  {
+    id: "tip-weekdays",
+    title: "veckodagar med liten bokstav",
+    text: "På franska skrivs veckodagar som 'lundi' och 'mercredi' med liten bokstav.",
+  },
+];
+
+export const allPracticeQuestions: PracticeItem[] = [
+  ...faireExercises,
+  ...sentenceExercises,
+  ...translationExercises,
+  ...quizQuestions.map((question) => ({
+    id: question.id,
+    category: question.category,
+    prompt: question.prompt,
+    answer: question.answer,
+    explanation: question.explanation,
+  })),
+];
